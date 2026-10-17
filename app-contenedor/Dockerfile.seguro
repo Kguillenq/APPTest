@@ -1,0 +1,32 @@
+# ============================================================
+# VERSIÓN ENDURECIDA (el "después")
+# ============================================================
+
+# ---------- Etapa 1: compilación ----------
+# Control: versión fija de la imagen (no "latest").
+FROM maven:3.9-eclipse-temurin-17 AS build
+WORKDIR /build
+# Se copia primero el pom.xml para aprovechar la caché de capas.
+COPY pom.xml .
+COPY src ./src
+RUN mvn -q -B package
+
+# ---------- Etapa 2: ejecución ----------
+# Control: imagen base mínima (solo JRE, sobre Alpine) y con versión fija.
+# La imagen final NO incluye Maven, ni el código fuente, ni el compilador.
+FROM eclipse-temurin:17-jre-alpine
+
+# Control: usuario sin privilegios (no root).
+RUN addgroup -S app && adduser -S app -G app
+
+WORKDIR /app
+COPY --from=build --chown=app:app /build/target/libreta.jar ./libreta.jar
+
+# Carpeta de datos con dueño "app" (se puede montar como volumen).
+RUN mkdir /app/datos && chown app:app /app/datos
+ENV DATA_DIR=/app/datos
+VOLUME ["/app/datos"]
+
+USER app
+
+ENTRYPOINT ["java", "-jar", "libreta.jar"]

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>cl.demo</groupId>
+  <artifactId>libreta</artifactId>
+  <version>1.0</version>
+  <packaging>jar</packaging>
+  <name>Libreta de notas</name>
+
+  <properties>
+    <maven.compiler.release>17</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <!--
+      ATENCIÓN (fines académicos): log4j 1.2.17 es una versión antigua, sin
+      soporte y con vulnerabilidades conocidas (CVE). Se deja a propósito para
+      que Trivy / Snyk Container tengan hallazgos que reportar.
+      Para "corregirla", se puede migrar a log4j-core 2.x actualizado o a
+      SLF4J + Logback.
+    -->
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.17</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <finalName>libreta</finalName>
+    <plugins>
+      <!-- Genera un único .jar ejecutable que incluye las dependencias -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.5.1</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>cl.demo.App</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

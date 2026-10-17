@@ -1,0 +1,20 @@
+# ============================================================
+# VERSIÓN INSEGURA (punto de partida para el "antes")
+# Malas prácticas a propósito, para que las herramientas las detecten.
+# ============================================================
+
+# Mala práctica 1: etiqueta "latest" (no es reproducible) e imagen grande
+# con herramientas de compilación que no hacen falta en producción.
+FROM maven:latest
+
+# Mala práctica 2: se copia TODO el proyecto (incluye código fuente,
+# archivos ocultos, etc.) y se compila dentro de la imagen final.
+WORKDIR /app
+COPY . .
+RUN mvn -q package
+
+# Mala práctica 3: no se define un usuario, por lo que el proceso corre
+# como root dentro del contenedor.
+ENV DATA_DIR=/app/datos
+
+ENTRYPOINT ["java", "-jar", "target/libreta.jar"]
